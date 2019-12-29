@@ -1,0 +1,29 @@
+type Perfil {
+    id: Int
+    nome: String
+}
+
+enum ClienteStatus {
+    ATIVO
+    INATIVO
+    BLOQUEADO
+}
+
+type Cliente {
+    id: Int
+    situacao_cadastral: Int
+    data_situacao_cadastral: String
+    cnpj: String!
+    razao_social: String!
+    nome_fantasia: String!
+    cnae_fiscal: String!
+    correio_eletronico: String
+    ddd_telefone_1: String
+    bairro: String
+    cep: String
+    idade: Int
+    capital_social: Float
+    opcao_pelo_simples: Boolean
+    perfil: Perfil
+    status: ClienteStatus
+}
