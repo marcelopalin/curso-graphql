@@ -204,19 +204,499 @@ server.listen().then(({ url }) => {
 })
 ```
 
+# QUAIS CONSULTAS JÁ ESTÃO PRONTAS?
 
-Portanto, para criarmos um Tipo Cliente e fazermos consulta devemos seguir os seguintes passos:
+Basta iniciarmos olhando dentro de schema-query/projeto/schema/index.graphql, nele podemos ver:
 
-Passo I:
+```graphql
+#import Usuario from 'Usuario.graphql'
+#import Perfil from 'Perfil.graphql'
+#import Tipo from 'Tipo.graphql'
+#import Produto from 'Produto.graphql'
+#import Query from 'Query.graphql'
+#import Cliente from 'Cliente.graphql'
 
-Criar schema-query/projeto/schema/Cliente.graphql
+scalar Date
+```
+
+Ou seja, temos que olhar os arquivos schema-query/projeto/schema/Usuario.graphql
+schema-query/projeto/schema/Produto.graphql e schema-query/projeto/schema/Query.graphql
+
+Se iniciarmos com **Query.graphql** temos:
+
+```graphql
+# Pontos de entrada da sua API!
+type Query {
+    ola: String!
+    horaAtual: Date!
+    usuarioLogado: Usuario
+    produtoEmDestaque: Produto
+    numerosMegaSena: [Int!]!
+    usuarios: [Usuario]
+    clientes: [Cliente]
+    usuario(id: Int): Usuario
+    cliente(id: Int): Cliente
+    perfis: [Perfil]
+    tipos: [Tipo]
+    perfil(id: Int): Perfil
+    tipo(id: Int): Tipo
+}
+```
+
+Em schema-query/projeto/resolvers/index.js teremos:
+
+```graphql
+const Query = require('./Query')
+const Produto = require('./Produto')
+const Usuario = require('./Usuario')
+const Cliente = require('./Cliente')
+
+module.exports = {
+    Query,
+    Produto,
+    Usuario,
+    Cliente
+}
+```
+
+Portanto, para cada um desses pontos de entrada da API teremos um RESOLVER em
+schema-query/projeto/resolvers/Query.js:
 
 ```javascript
+const { usuarios, perfis, clientes, tipos } = require('../data/db')
 
+module.exports = {
+    ola() {
+        return 'Bom dia!'
+    },
+    horaAtual() {
+        return new Date
+    },
+    usuarioLogado(obj) {
+        // Apenas para mostrar que o objeto é null neste ponto
+        // apenas depois de retornado que teremos o objeto
+        console.log(obj)
+        return {
+            id: 1,
+            nome: 'Admin Logado',
+            email: 'admin@mail.com',
+            idade: 23,
+            salario_real: 1234.56,
+            vip: true
+        }
+    },
+    produtoEmDestaque() {
+        return {
+            nome: 'Notebook Gamer',
+            preco: 4890.89,
+            desconto: 0.5
+        }
+    },
+    numerosMegaSena() {
+        // return [4, 8, 13, 27, 33, 54]
+        const crescente = (a, b) => a - b
+        return Array(6).fill(0)
+            .map(n => parseInt(Math.random() * 60 + 1))
+            .sort(crescente)
+    },
+    usuarios() {
+        return usuarios
+    },
+    clientes() {
+        return clientes
+    },
+    cliente(_, { id }) {
+        //Usando o destructuring no args já pegamos { id }
+        const sels = clientes
+            .filter(c => c.id === id)
+        return sels ? sels[0] : null
+    },    
+    tipos() {
+        return tipos
+    },    
+    tipo(_, { id }) {
+        const sels = tipos
+            .filter(p => p.id === id)
+        return sels ? sels[0] : null 
+    },    
+    usuario(_, { id }) {
+        const sels = usuarios
+            .filter(u => u.id === id)
+        return sels ? sels[0] : null
+    },
+    perfis() {
+        return perfis
+    },
+    perfil(_, { id }) {
+        const sels = perfis
+            .filter(p => p.id === id)
+        return sels ? sels[0] : null 
+    }
+}
 ```
 
-Em schema-query/projeto/schema/index.graphql importe o Schema:
+Lembrando que as consultas estão definidas em schema-query/projeto/schema/Query.graphql
+Na ferramenta execute as seguintes consultas:
 
+```graphql
+# Write your query or mutation here
+query {
+  ola
+  horaAtual
+  usuarioLogado {
+    id
+    nome
+    email
+    idade
+    salario
+  }
+  produtoEmDestaque {
+    nome
+    preco
+    desconto
+    precoComDesconto
+  }
+  numerosMegaSena
+  usuarios {
+    id
+    nome
+    email
+    idade
+    salario
+    vip
+    perfil {
+      nome
+    }
+  }
+  clientes {
+    id
+    situacao_cadastral
+    data_situacao_cadastral
+    cnpj
+    razao_social
+    nome_fantasia
+    cnae_fiscal
+    capital_social
+    tipo {
+      nome
+    }
+  }
+  usuario(id: 1){
+    nome
+  }
+  cliente(id: 1){
+    cnpj
+    razao_social
+    nome_fantasia
+    tipo {
+      nome
+    }
+  }
+  perfis {
+    id
+    nome
+  }
+  tipos {
+    id
+    nome
+  } 
+  perfil(id: 1) {
+    nome
+  }
+  tipo(id: 1) {
+    nome
+  }
+}
 ```
 
+
+E a resposta esperada é:
+
+
+```graphql
+{
+  "data": {
+    "ola": "Bom dia!",
+    "horaAtual": "2019-12-30T00:56:20.385Z",
+    "usuarioLogado": {
+      "id": 1,
+      "nome": "Admin Logado",
+      "email": "admin@mail.com",
+      "idade": 23,
+      "salario": 1234.56
+    },
+    "produtoEmDestaque": {
+      "nome": "Notebook Gamer",
+      "preco": 4890.89,
+      "desconto": 0.5,
+      "precoComDesconto": 2445.445
+    },
+    "numerosMegaSena": [
+      1,
+      19,
+      21,
+      33,
+      57,
+      57
+    ],
+    "usuarios": [
+      {
+        "id": 1,
+        "nome": "João Silva",
+        "email": "jsilva@zemail.com",
+        "idade": 29,
+        "salario": null,
+        "vip": null,
+        "perfil": {
+          "nome": "comum"
+        }
+      },
+      {
+        "id": 2,
+        "nome": "Rafael Junior",
+        "email": "rafajun@wemail.com",
+        "idade": 31,
+        "salario": null,
+        "vip": null,
+        "perfil": {
+          "nome": "administrador"
+        }
+      },
+      {
+        "id": 3,
+        "nome": "Daniela Smith",
+        "email": "danismi@umail.com",
+        "idade": 24,
+        "salario": null,
+        "vip": null,
+        "perfil": {
+          "nome": "comum"
+        }
+      }
+    ],
+    "clientes": [
+      {
+        "id": 1,
+        "situacao_cadastral": 2,
+        "data_situacao_cadastral": "2013-11-06",
+        "cnpj": "19373880000170",
+        "razao_social": "AMPERE CONSULTORIA EMPRESARIAL LTDA.",
+        "nome_fantasia": "AMPERE CONSULTORIA",
+        "cnae_fiscal": "7020-4/00 Atividades de consultoria em gestão empresarial, exceto consultoria técnica específica",
+        "capital_social": 5000,
+        "tipo": {
+          "nome": "Consultoria"
+        }
+      },
+      {
+        "id": 2,
+        "situacao_cadastral": 2,
+        "data_situacao_cadastral": "2012-02-02",
+        "cnpj": "15027346000150",
+        "razao_social": "MEGA WATT COMERCIALIZACAO DE ENERGIA LTDA",
+        "nome_fantasia": "MEGA WATT",
+        "cnae_fiscal": "3513-1/00 Comércio atacadista de energia elétrica",
+        "capital_social": 2685000,
+        "tipo": {
+          "nome": "Comercializadora"
+        }
+      }
+    ],
+    "usuario": {
+      "nome": "João Silva"
+    },
+    "cliente": {
+      "cnpj": "19373880000170",
+      "razao_social": "AMPERE CONSULTORIA EMPRESARIAL LTDA.",
+      "nome_fantasia": "AMPERE CONSULTORIA",
+      "tipo": {
+        "nome": "Consultoria"
+      }
+    },
+    "perfis": [
+      {
+        "id": 1,
+        "nome": "comum"
+      },
+      {
+        "id": 2,
+        "nome": "administrador"
+      }
+    ],
+    "tipos": [
+      {
+        "id": 1,
+        "nome": "Consultoria"
+      },
+      {
+        "id": 2,
+        "nome": "Comercializadora"
+      }
+    ],
+    "perfil": {
+      "nome": "comum"
+    },
+    "tipo": {
+      "nome": "Consultoria"
+    }
+  }
+}
+```
+
+# RELACIONAMENTOS - vamos usar RESOLVER para Relacionar
+
+
+Um relacionamente entre Usuario e Perfil (ou Cliente e Tipo)
+
+Vamos criar um novo atributo do usuário chamado **perfil_id**:
+
+```json
+const usuarios = [{
+    id: 1,
+    nome: 'João Silva',
+    email: 'jsilva@zemail.com',
+    idade: 29,
+    perfil_id: 1,
+    status: 'ATIVO'
+}, {
+    id: 2,
+    nome: 'Rafael Junior',
+    email: 'rafajun@wemail.com',
+    idade: 31,
+    perfil_id: 2,
+    status: 'INATIVO'
+}, {
+    id: 3,
+    nome: 'Daniela Smith',
+    email: 'danismi@umail.com',
+    idade: 24,
+    perfil_id: 1,
+    status: 'BLOQUEADO'
+}]
+```
+
+No Schema do Usuário definimos o atributo "perfil" que retorna um Type Perfil:
+
+```graphql
+type Usuario {
+    id: Int
+    nome: String!
+    email: String!
+    idade: Int
+    salario: Float
+    vip: Boolean
+    perfil: Perfil
+    status: UsuarioStatus
+}
+```
+
+e para relacionarmos vamos criar um RESOLVER em schema-query/projeto/resolvers/Usuario.js
+que 
+
+```javascript
+const { perfis } = require('../data/db')
+
+module.exports = {
+    /**
+     * Outro resolver que serve para resolver o campo perfil_id retornando
+     * apenas o "perfil"
+     * @param {usuario} usuario 
+     */
+    perfil(usuario) {
+        const sels = perfis
+            .filter(p => p.id === usuario.perfil_id)
+        return sels ? sels[0] : null
+    }
+}
+```
+
+ou, o mesmo que:
+
+```javascript
+const { perfis } = require('../data/db')
+
+module.exports = {
+    /**
+     * Outro resolver que serve para resolver o campo perfil_id retornando
+     * apenas o "perfil"
+     * @param {obj} obj 
+     */
+    perfil(obj) {
+        const sels = perfis
+            .filter(p => p.id === obj.perfil_id)
+        return sels ? sels[0] : null /** se filtrado, pega apenas o primeiro */
+    }
+}
+```
+
+
+# USO DO GRAPHQL
+
+Pode ser usado para INTEGRAR diversas APIs, pois os resolvers podem consultar
+as outras APIs e retornar a respostas agregadas.
+
+# FRAGMENT
+
+- Conjunto de dados frequentemente requisitados do Tipo Usuário (por exemplo)
+
+Na ferramenta você cria:
+
+```graphql
+fragment usuarioCompleto on Usuario{
+	id nome email idade salario vip perfil status
+}
+```
+
+E para utilizarmos basta fazermos igual ao JS utilizando o Operador Spread (...)
+```graphql
+usuario(id: 2) {
+    ...usuarioCompleto
+}
+```
+
+Veja como fica (Lembrando que o Fragment não pode estar dentro dos query{ }):
+
+```graphql
+fragment
+  usuarioCompleto
+  on
+  Usuario {
+    id
+    nome
+    email
+    idade
+    salario
+    vip
+    perfil{
+      nome
+    }
+    status
+  }
+
+{
+  usuario(id: 2) {
+    ...usuarioCompleto
+  }
+}
+```
+
+Resultado
+
+```json
+{
+  "data": {
+    "usuario": {
+      "id": 2,
+      "nome": "Rafael Junior",
+      "email": "rafajun@wemail.com",
+      "idade": 31,
+      "salario": null,
+      "vip": null,
+      "perfil": {
+        "nome": "administrador"
+      },
+      "status": "INATIVO"
+    }
+  }
+}
 ```

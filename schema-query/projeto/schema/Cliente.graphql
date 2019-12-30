@@ -1,8 +1,3 @@
-type Perfil {
-    id: Int
-    nome: String
-}
-
 enum ClienteStatus {
     ATIVO
     INATIVO
@@ -21,9 +16,8 @@ type Cliente {
     ddd_telefone_1: String
     bairro: String
     cep: String
-    idade: Int
     capital_social: Float
     opcao_pelo_simples: Boolean
-    perfil: Perfil
     status: ClienteStatus
+    tipo: Tipo
 }
