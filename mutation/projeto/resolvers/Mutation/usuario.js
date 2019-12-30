@@ -17,11 +17,14 @@ function indiceUsuario(filtro) {
 module.exports = {
     // { nome, email, idade }
     novoUsuario(_, { dados }) {
+
+        // Validação - consulta se e-mail já existe
         const emailExistente = usuarios
             .some(u => u.email === dados.email)
 
+        // Se existe, lança uma Exception
         if(emailExistente) {
-            throw new Error('E-mail cadastrado')
+            throw new Error('E-mail já cadastrado! Não pode ser duplicado!')
         }
 
         const novo = {
@@ -37,8 +40,14 @@ module.exports = {
     excluirUsuario(_, { filtro }) {
         const i = indiceUsuario(filtro)
         if(i < 0) return null
+
+        // Primeiro parâmetro é a posição do elemento
+        // no segundo a quantidade de elementos que desejo
+        // ser excluído
         const excluidos = 
             usuarios.splice(i, 1)
+        // Se excluidos estiver setado, vou devolver apenas
+        // o elemento indice 0
         return excluidos ? 
             excluidos[0] : null
     },

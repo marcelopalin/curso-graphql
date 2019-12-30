@@ -23,21 +23,6 @@ Sem fragment:
 
 ```graphql
 query {
-  ola
-  horaAtual
-  usuarioLogado {
-    id
-    nome
-    email
-    idade
-  }
-  produtoEmDestaque {
-    nome
-    preco
-    desconto
-    precoComDesconto
-  }
-  numerosMegaSena
   usuarios {
     id
     nome
@@ -57,7 +42,6 @@ query {
   perfil(id: 1) {
     nome
   }
-
 }
 ```
 
@@ -397,4 +381,106 @@ mutation {
     }
   }
 }
+```
+
+# VALIDAÇÃO DO EMAIL AO CRIAR NOVO USUÁRIO
+
+Como estamos utilizando um BD na memória, toda alteração no código
+reinicia o servidor, pois se tentarmos inserir 2x o mesmo usuário será lançado uma exceção pois os e-mails não podem se repetir.
+
+E se executarmos a exclusão 2x receberemos null quando o usuário não for encontrado para ser deletado.
+
+```graphql
+mutation {
+  novoUsuario(dados: { nome: "Marcelo", email: "meu@mail.com", idade: 48 }) {
+    id
+    nome
+    email
+    idade
+    perfil {
+      nome
+    }
+  }
+  
+  excluirUsuario(filtro: {id: 2}){
+    nome id email
+  }
+  
+}
+```
+
+Resposta caso tentemos executar pela 2x:
+
+```json
+{
+  "errors": [
+    {
+      "message": "E-mail já cadastrado! Não pode ser duplicado!",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": [
+        "novoUsuario"
+      ],
+      "extensions": {
+        "code": "INTERNAL_SERVER_ERROR",
+        "exception": {
+          "stacktrace": [
+            "Error: E-mail já cadastrado! Não pode ser duplicado!",
+            "    at novoUsuario (/home/mpi/www/curso-graphql/mutation/projeto/resolvers/Mutation/usuario.js:27:19)",
+            "    at field.resolve (/home/mpi/www/curso-graphql/mutation/projeto/node_modules/graphql-extensions/dist/index.js:128:26)",
+            "    at resolveFieldValueOrError (/home/mpi/www/curso-graphql/mutation/projeto/node_modules/graphql/execution/execute.js:480:18)",
+            "    at resolveField (/home/mpi/www/curso-graphql/mutation/projeto/node_modules/graphql/execution/execute.js:447:16)",
+            "    at /home/mpi/www/curso-graphql/mutation/projeto/node_modules/graphql/execution/execute.js:263:18",
+            "    at /home/mpi/www/curso-graphql/mutation/projeto/node_modules/graphql/jsutils/promiseReduce.js:32:10",
+            "    at Array.reduce (<anonymous>)",
+            "    at promiseReduce (/home/mpi/www/curso-graphql/mutation/projeto/node_modules/graphql/jsutils/promiseReduce.js:29:17)",
+            "    at executeFieldsSerially (/home/mpi/www/curso-graphql/mutation/projeto/node_modules/graphql/execution/execute.js:260:37)",
+            "    at executeOperation (/home/mpi/www/curso-graphql/mutation/projeto/node_modules/graphql/execution/execute.js:238:55)"
+          ]
+        }
+      }
+    }
+  ],
+  "data": null
+}
+```
+
+# MUTATION - ALTERAÇÃO DE USUÁRIOS
+
+```javascript
+    alterarUsuario(_, { filtro, dados }) {
+
+        // Consulta se o usuário existe, 
+        // senão retorna null
+        const i = indiceUsuario(filtro)
+        if(i < 0) return null
+
+        // Atualiza o Nome, E-mail e Idade
+        usuarios[i].nome = dados.nome
+        usuarios[i].email = dados.email
+        if(dados.idade) {
+            usuarios[i].idade = dados.idade
+        }
+
+
+        // Outra maneira de fazer iss
+        // const usuario = {
+        //     ...usuarios[i],
+        //     ...args
+        // }
+
+        // usuarios.splice(i, 1, usuario)
+        // return usuario
+        return usuarios[i]
+    }
+```
+
+Na ferramento do ApolloServer execute a seguinte consulta:
+
+```
+
 ```
