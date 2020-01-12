@@ -1,0 +1,13 @@
+{
+    "sqltools.connections": [
+        {
+            "database": "projgrapqlbd",
+            "dialect": "MySQL",
+            "name": "projgrapqlbd",
+            "password": "senha123",
+            "port": 3306,
+            "server": "localhost",
+            "username": "admin_grapql"
+        }
+    ]
+}
