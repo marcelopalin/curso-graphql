@@ -203,3 +203,120 @@ $ npx knex migrate:latest
 Using environment: development
 Batch 1 run: 3 migrations
 ```
+
+
+# RESUMO DAS TABELAS
+
+Usuarios: id (key), nome, email, senha, ativo, data_criacao
+
+Perfis: id, nome (Unica), rotulo
+
+Usuarios_Perfis: usuario_id, perfil_id e a chave dupla (usuario_id, perfil_id)
+
+# Criamos a pasta CONFIG
+
+Nela vamos criar o arquivo **db.js** e aqui nós vamos configurar o Knex
+A unica coisa que ele precisa saber para funcionar é saber onde está o 
+arquivo **knexfile.js**
+
+```javascript
+const config = require('../knexfile.js')
+module.exports = require('knex')(config)
+```
+
+Vamos criar uma pasta de testes para fazer alguns testes:
+
+insert.js:
+
+```javascript
+const db = require('../config/db')
+
+/**
+ * Vamos inserir um Novo Perfil, para isso vamos criar o Objeto
+ */
+
+ const novoPerfil = {
+     nome: 'cadastrador',
+     rotulo: 'Cadastrador de Dados'
+ }
+
+ /** Para vermos o que o MySQL retorna */
+ db('perfis').insert(novoPerfil)
+ .then(res => console.log(res))
+ .catch(err => console.log(err.sqlMessage)) /** Cuidado: aqui é só para desenvolvimento, 
+ não exponha suas informações */
+
+ /** E ele retorna o ID inserido em um Array */
+
+ /** Resp:
+  *  node testes/insert.js
+  *  [ 3 ]
+  * 
+  */
+
+  /** O código ficará rodando.!!! */
+```
+
+Para parar:
+
+```javascript
+const db = require('../config/db')
+
+/**
+ * Vamos inserir um Novo Perfil, para isso vamos criar o Objeto
+ */
+
+ const novoPerfil = {
+     nome: 'cadastrador',
+     rotulo: 'Cadastrador de Dados'
+ }
+
+ /** Para vermos o que o MySQL retorna */
+ db('perfis').insert(novoPerfil)
+ .then(res => console.log(res))
+ .catch(err => console.log(err.sqlMessage))
+ .finally(() => db.destroy()) /** Isso você NÃO FARÁ NA SUA API - pois o Knex 
+ controla o Pull de conexões para não ficar abrindo e fechando */
+
+ /** Resp:
+  *  node testes/insert.js
+  *  [ 3 ]
+  * 
+  */
+
+  /** O código ficará rodando.!!! */
+```
+
+Rodando com CODRUNNER do VSCode, instale a extensão e use os comandos:
+
+Ctrl+Alt+N (rodar) e Ctrl+Alt+M (parar) (Obs: desde que esteja visualizando o arquivo
+que deseja rodar
+
+
+# FAZENDO TESTES DE CONSULTA
+
+Crie o arquivo consulta.js
+
+```javascript
+const db = require('../config/db')
+
+db('perfis')
+.then(res => console.log(res))
+.finally(() => db.destroy()) /** Não faremos na API - fechando o Pull do Knex */ 
+```
+
+Resposta: Um array com os dados
+
+```bash
+$ node testes/consulta.js
+[ RowDataPacket { id: 1, nome: 'comum', rotulo: 'Comum' },
+  RowDataPacket { id: 2, nome: 'admin', rotulo: 'Administrador' },
+  RowDataPacket { id: 3, nome: 'cadastrador', rotulo: 'Cadastrador de Dados' },
+  RowDataPacket { id: 7, nome: 'visitante', rotulo: 'Visitante' } ]
+```
+
+# Melhorando a Resposta - Fazendo um Map do Array para pegar apenas o Perfil
+
+```
+
+```
