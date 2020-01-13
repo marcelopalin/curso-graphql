@@ -23,6 +23,7 @@ const getUsuario = async nomePerfil => {
 
 module.exports = async req => {
     const usuario = await getUsuario('admin')
+    console.log(`Usando Login Fake do usuario para consulta com autorização: ${usuario.nome}`)
     if(usuario) {
         const { token } = await getUsuarioLogado(usuario)
         req.headers = {

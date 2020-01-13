@@ -3,8 +3,42 @@ const db = require('../../config/db')
 const { perfil: obterPerfil } = require('../Query/perfil')
 const { usuario: obterUsuario } = require('../Query/usuario')
 
+/** Colocaremos todas as mutations dentro do objeto
+ * const mutations e vamos exportá-lo lá embaixo.
+ *  Porque depois quando precisar chamar uma função
+ *  dentro da outra usaremos mutations.novoUsuario()
+ *  ao invés de usar this.novoUsuario()
+ */
 const mutations = {
+
+    /** Mutation chamada criado em:
+     *  projeto-final/backend/schema/Mutation.graphql
+     *  registrarUsuario() que recebe um Input:
+     *  UsuarioRegistrarInput que está definido em:
+     *  projeto-final/backend/schema/Usuario.graphql
+     *  Necessita (nome, email e senha)
+     * 
+     *  No Playground:
+     *   mutation {
+     *       registrarUsuario(
+     *           dados: { nome: "Pedro", email: "pp@mail.com", senha: "senha123" }
+     *       ) {
+     *           id
+     *           nome
+     *           email
+     *           token
+     *           perfis {
+     *           nome rotulo
+     *           }
+     *       }
+     *   } 
+     * 
+     */
     registrarUsuario(_, { dados }) {
+
+        /** Pega o nome da constante que definiu acima
+         * e vai passar o usuário.
+         */
         return mutations.novoUsuario(_, {
             dados: {
                 nome: dados.nome,
@@ -13,11 +47,31 @@ const mutations = {
             }
         })
     },
+    /**
+     * 
+     * mutation {
+     *    novoUsuario(dados: 
+     *      { nome: "Marcelo", email: "mp@mail.com", idade: 27 }) {
+     *        id
+     *        nome
+     *        email
+     *        perfil {
+     *          nome
+     *        }
+     *    }
+     * }
+     * 
+     * 
+     */
     async novoUsuario(_, { dados }, ctx) {
         ctx && ctx.validarAdmin()
         try {
             const idsPerfis = []
 
+            // Se não foi passado perfis é que a
+            // chamada vem do registrarUsuario que é público
+            // e não deve permitir poder escolher o perfil
+            // será cadastrado como perfil comum!
             if(!dados.perfis || !dados.perfis.length) {
                 dados.perfis = [{
                     nome: 'comum'
@@ -32,6 +86,7 @@ const mutations = {
             }
 
             // criptografar a senha
+            // Vamos chamar a função Sincrona
             const salt = bcrypt.genSaltSync()
             dados.senha = bcrypt.hashSync(dados.senha, salt)
 
@@ -92,6 +147,7 @@ const mutations = {
                     }
                 }
 
+                //Antes de Alterar vamos criptografar a senha
                 if(dados.senha) {
                     // criptografar a senha
                     const salt = bcrypt.genSaltSync()

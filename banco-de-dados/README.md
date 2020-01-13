@@ -4,7 +4,7 @@ Para mostramos a integração do GRAPHQL com o BD MySQL nós precisaremos
 configurar um projeto Node que tenha o Knex
 
 
-BD treinamento_db;
+BD projgrapqlbd;
 User: admin_grapql
 Pass: senha123
 
