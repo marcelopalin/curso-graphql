@@ -5,4 +5,5 @@ type Query {
     perfis: [Perfil]
     perfil(filtro: PerfilFiltro!): Perfil
     ola: String
+    empresa(filtro: EmpresaFiltro): Empresa
 }

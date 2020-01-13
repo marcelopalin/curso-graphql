@@ -1,6 +1,7 @@
 const usuario = require('./usuario')
 const perfil = require('./perfil')
 const outras = require('./outras')
+const empresa = require('./empresa')
 
 /** 
  * Exporto todos os resolvers das Queries
@@ -10,5 +11,6 @@ const outras = require('./outras')
  module.exports = {
     ...usuario,
     ...perfil,
-    ...outras
+    ...outras,
+    ...empresa
  }
