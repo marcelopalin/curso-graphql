@@ -5,6 +5,7 @@ async function salvarUsuario(nome, email, senha) {
      * senão ATUALIZA
      * Consulte o Usuário completo, se fosse para
      * pegar só um pedaço usava select('id','email')
+     * Retornando o Usuario inserido/atualizado
      */
     let usuario = await db('usuarios')
     .where({ email }).first()
@@ -48,14 +49,43 @@ async function salvarUsuario(nome, email, senha) {
 async function salvarPerfil(nome, rotulo) {
     /** Como o 'nome' é único, vamos pesquisar 
      * Se Existe Atualiza, senão INSERE
+     * Sempre retornando o Perfil
+     * para a chamada: Ex: const perfilA = await salvarPerfil('rh_1', 'Pessoal')
      */
+    let perfil = await db('perfis')
+    .where({ nome }).first()
 
+    if(!perfil){
+
+        let newperfil = {
+            nome: nome,
+            rotulo: rotulo
+        }
+        let [ id ] = await db('perfis')
+        .insert(newperfil)
+        
+        // ou
+        // let [ id ] = await db('perfis')
+        // .insert({nome, rotulo})
+
+        return {...newperfil, id}
+    }
     
 }
 
 async function adicionarPerfis(usuario, ...perfis) {
     /** Associar um CONJUNTO DE PERFIS a um usuário */
-
+    /** Não precisa retornar nada */
+    const usuario_id = usuario.id
+    await db('usuarios_perfis')
+        .where({ usuario_id })
+        .delete()
+    
+	for(perfil of perfis) {
+        const perfil_id = perfil.id
+        await db('usuarios_perfis')
+            .insert({ usuario_id, perfil_id })
+    }
 }
 
 async function executar() {

@@ -3,9 +3,9 @@
 module.exports = {
   client: 'mysql',
   connection: {
-    database: 'desafio-cap-04',
-    user:     'root',
-    password: '12345678'
+    database: 'projgrapqlbd',
+    user:     'admin_grapql',
+    password: 'senha123'
   },
   pool: {
     min: 2,

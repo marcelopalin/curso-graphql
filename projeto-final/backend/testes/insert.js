@@ -9,7 +9,10 @@ const db = require('../config/db')
      rotulo: 'Visitante'
  }
 
- /** Para vermos o que o MySQL retorna */
+ /** Para vermos o que o MySQL retorna
+  * Toda Insersão retorna um [id] no MySql
+  * 
+  */
  db('perfis').insert(novoPerfil)
  .then(res => console.log(res))
  .catch(err => console.log(err.sqlMessage))
