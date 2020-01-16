@@ -2,8 +2,8 @@
   <v-app>
     <v-toolbar app color="blue" dark>
       <v-toolbar-title class="headline text-uppercase">
-        <span>Gestão - </span>
-        <span class="font-weight-light">Clientes</span>
+        <span>GraphQL</span>
+        <span class="font-weight-light">Client</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
     </v-toolbar>

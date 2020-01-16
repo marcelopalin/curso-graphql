@@ -1,4 +1,4 @@
-# FrontEnd GraphQL
+# frontend
 
 ## Project setup
 ```
