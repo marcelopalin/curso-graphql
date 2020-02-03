@@ -4,7 +4,7 @@ module.exports = async ({ req }) => {
     
     // Descomente somente enquanto estiver 
     // em desenvolvimento
-    // await require('./simularUsuarioLogado')(req)
+    //await require('./simularUsuarioLogado')(req)
 
     /** Espero receber o Token pelo Header  */
     /** Após o usuário fazer logo eu espero que o Token
