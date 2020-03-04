@@ -11,20 +11,33 @@ Pass: senha123
 
 ```bash
 CREATE DATABASE projgrapqlbd CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-CREATE USER 'admin_grapql'@'localhost' IDENTIFIED BY 'senha123';
+CREATE USER 'admin_grapql'@'localhost' IDENTIFIED WITH mysql_native_password BY 'senha123';
 GRANT ALL PRIVILEGES ON *.* TO 'admin_grapql'@'localhost';
-CREATE USER 'admin_grapql'@'%' IDENTIFIED BY 'senha123';
+CREATE USER 'admin_grapql'@'%' IDENTIFIED WITH mysql_native_password BY 'senha123';
 GRANT ALL PRIVILEGES ON *.* TO 'admin_grapql'@'%';
 flush privileges;
 quit;
 ```
 
-# AJUSTE O arquivo .env
+> ATENÇÃO: depois crie o arquivo **.env**
+
+E acerte as configurações:
+
+```ini
+NODE_ENV=development
+
+APP_DB_HOST=localhost
+APP_DB_PORT=3306
+APP_DB_NAME=projgrapqlbd
+APP_DB_USER=admin_grapql
+APP_DB_PASSWORD=senha123
+
+APP_AUTH_SECRET=escolher um segredo!
+```
 
 # FAÇA AS MIGRATIONS
 
 Para rodar as Migrations faça;
-
 
 ```bash
 npx knex migrate:latest
@@ -42,6 +55,9 @@ $ npx knex migrate:latest
 Using environment: development
 Batch 1 run: 3 migrations
 ```
+
+Para MySQL 8 temos um arquivo chamado PROBLEMAS.md que explica alguns deles.
+
 
 # PARA TESTAR NO DESENVOLVIMENTO
 

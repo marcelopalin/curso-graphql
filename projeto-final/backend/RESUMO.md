@@ -9,13 +9,16 @@ Pass: senha123
 
 
 CREATE DATABASE projgrapqlbd CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-CREATE USER 'admin_grapql'@'localhost' IDENTIFIED BY 'senha123';
+CREATE USER 'admin_grapql'@'localhost' IDENTIFIED WITH mysql_native_password BY 'senha123';
 GRANT ALL PRIVILEGES ON *.* TO 'admin_grapql'@'localhost';
-CREATE USER 'admin_grapql'@'%' IDENTIFIED BY 'senha123';
+CREATE USER 'admin_grapql'@'%' IDENTIFIED WITH mysql_native_password BY 'senha123';
 GRANT ALL PRIVILEGES ON *.* TO 'admin_grapql'@'%';
 flush privileges;
 quit;
 ```
+
+> Crie o arquivo **.env**
+
 
 # COMO USAR?
 
